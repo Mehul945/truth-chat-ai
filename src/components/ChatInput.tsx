@@ -38,17 +38,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
           className="min-h-[3rem] max-h-32 resize-none pr-10 bg-chat-input-bg border-border/60 focus:border-primary/60 transition-colors"
           rows={1}
         />
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="absolute right-1 bottom-1 h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-          onClick={() => {
-            // Future: Handle file attachments for images/PDFs
-          }}
-        >
-          <Paperclip className="h-4 w-4" />
-        </Button>
       </div>
       
       <Button
