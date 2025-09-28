@@ -4,21 +4,14 @@ import pickle
 import re
 from lime.lime_text import LimeTextExplainer
 from flask import Flask, send_from_directory, jsonify
-
+from fake_news_detection import *
 import numpy as np
 
-# Load pickled model and vectorizer
-with open("pipeline.pkl", "rb") as f:
-    pipeline = pickle.load(f)
+detector = FakeNewsDetector.load_model('rf.pkl')
 
 app = Flask(__name__, static_folder="../dist", static_url_path="/")
 
 CORS(app)
-
-# Initialize LIME explainer
-explainer = LimeTextExplainer(
-    class_names=['Fake', 'Real']
-)
 
 def extract_words(text):
     """Extract words from text, removing punctuation and converting to lowercase"""
@@ -29,15 +22,13 @@ def get_lime_explanation(text, num_features=10):
     """Generate LIME explanation for the prediction"""
     try:
         # Create explanation
-        exp = explainer.explain_instance(
-            text, 
-            pipeline.predict_proba, 
+        exp = detector.explain_instance(
+            text,
             num_features=num_features,
-            top_labels=2
         )
         
         # Get explanation for the predicted class
-        predicted_class = pipeline.predict([text])[0]
+        predicted_class = detector.predict(text)[0]
         explanation_list = exp.as_list(label=predicted_class)
         
         # Format explanations from [word, weight] pairs
@@ -80,8 +71,8 @@ def predict():
         return jsonify({"error": "No text provided"}), 400
 
     # Get prediction and probabilities
-    prediction = pipeline.predict([data])[0]
-    probability = pipeline.predict_proba([data])[0]
+    prediction = detector.predict([data])[0]
+    probability = detector.predict_proba([data])[0]
     
     # Extract words from the input text
     words = extract_words(data)
